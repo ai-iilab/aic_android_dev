@@ -22,6 +22,7 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.SurfaceHolder;
@@ -42,9 +43,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     SurfaceView surfaceView;
     Canvas canvas;
     Paint paint;
-    int xOffset, yOffset, boxWidth, boxHeight;
-
-    //Classifier classifier;
+    Extractor extractor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         mPreviewView = findViewById(R.id.viewFinder);
         tvResults = findViewById(R.id.tvResults);
+
+        extractor = new Extractor(this);
 
         // CameraX
         if (allPermissionsGranted()){
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     @Override
                     public void analyze(@NonNull ImageProxy image) {
                         String result = "hello";
-                        //result = extractor.process(image, xOffset, yOffset, boxWidth, boxHeight, true);
+                        result = extractor.process(image, true);
                         tvResults.setText(result);
                         image.close();
                     }
@@ -148,8 +149,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         int height = mPreviewView.getHeight();
         int width = mPreviewView.getWidth();
-
         int left, right, top, bottom, diameter;
+
+        Log.i("Preview", "x: " + mPreviewView.getLeft() + ", y: " + mPreviewView.getTop());
+        Log.i("Preview", "w: " + width + ", h: " + height);
 
         diameter = width;
         if (height < width) {
@@ -159,24 +162,20 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         int offset = (int) (0.05 * diameter);
         diameter -= offset;
 
-        canvas = holder.lockCanvas();
-        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        //Changing the value of x in diameter/x will change the size of the box ; inversely proportionate to x
+        left = width / 2 - diameter / 2;
+        top = height / 2 - diameter / 2;
+        right = width / 2 + diameter / 2;
+        bottom = height / 2 + diameter / 2;
+
         //border's properties
         paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(color);
         paint.setStrokeWidth(5);
 
-        left = width / 2 - diameter / 2;
-        top = height / 2 - diameter / 2;
-        right = width / 2 + diameter / 2;
-        bottom = height / 2 + diameter / 2;
-
-        xOffset = left;
-        yOffset = top;
-        boxHeight = bottom - top;
-        boxWidth = right - left;
-        //Changing the value of x in diameter/x will change the size of the box ; inversely proportionate to x
+        canvas = holder.lockCanvas();
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         canvas.drawRect(left, top, right, bottom, paint);
         holder.unlockCanvasAndPost(canvas);
     }

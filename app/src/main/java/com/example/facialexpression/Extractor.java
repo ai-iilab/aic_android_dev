@@ -53,16 +53,37 @@ public class Extractor {
         }
     }
 
-    public String process(ImageProxy image, int xOffset, int yOffset, int boxWidth, int boxHeight, boolean useBoxImage){
+    public String process(ImageProxy image, boolean useBoxImage){
         @SuppressLint("UnsafeExperimentalUsageError")
         Image img = image.getImage();
-        Bitmap bmp = Utils.toBitmap(img);
-
         Bitmap bitmap;
         if (useBoxImage) {
-            bitmap = Bitmap.createBitmap(bmp, xOffset, yOffset, boxWidth, boxHeight);
+            Bitmap bmp = Utils.toBitmap(img);
+
+            int width = bmp.getWidth();
+            int height = bmp.getHeight();
+            int left, right, top, bottom, diameter;
+
+            diameter = width;
+            if (height < width) {
+                diameter = height;
+            }
+
+            int offset = (int) (0.05 * diameter);
+            diameter -= offset;
+
+            left = width / 2 - diameter / 2;
+            top = height / 2 - diameter / 2;
+            right = width / 2 + diameter / 2;
+            bottom = height / 2 + diameter / 2;
+
+            Log.i("Extractor", "x: " + left + ", y: " + top);
+            Log.i("Extractor", "w: " + (right-left) + ", h: " + (bottom-top));
+            Log.i("Extractor", "w: " + img.getWidth() + ", h: " + img.getHeight());
+
+            bitmap = Bitmap.createBitmap(bmp, left, top, right-left, bottom-top);
         } else {
-            bitmap = bmp;
+            bitmap = Utils.toBitmap(img);
         }
 
         int rotation = Utils.getImageRotation(image);
