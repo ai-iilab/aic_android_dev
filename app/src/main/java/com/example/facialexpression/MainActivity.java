@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     SurfaceView surfaceView;
     Canvas canvas;
     Paint paint;
-    int cameraHeight, cameraWidth, xOffset, yOffset, boxWidth, boxHeight;
+    int xOffset, yOffset, boxWidth, boxHeight;
 
     //Classifier classifier;
 
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     @Override
                     public void analyze(@NonNull ImageProxy image) {
                         String result = "hello";
-                        //result = classifier.classify(image);
+                        //result = extractor.process(image, xOffset, yOffset, boxWidth, boxHeight, true);
                         tvResults.setText(result);
                         image.close();
                     }
