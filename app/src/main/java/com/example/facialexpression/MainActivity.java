@@ -15,14 +15,17 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.SurfaceHolder;
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         holder = surfaceView.getHolder();
         holder.setFormat(PixelFormat.TRANSPARENT);
         holder.addCallback(this);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void startCamera(){
@@ -108,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     @Override
                     public void analyze(@NonNull ImageProxy image) {
                         String result = "hello";
-                        result = extractor.process(image, true);
+                        result = extractor.process(image, false);
                         tvResults.setText(result);
                         image.close();
                     }
@@ -145,14 +150,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     // For drawing the rectangular box
     private void DrawFocusRect(int color) {
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        //DisplayMetrics displaymetrics = new DisplayMetrics();
+        //getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         int height = mPreviewView.getHeight();
         int width = mPreviewView.getWidth();
         int left, right, top, bottom, diameter;
 
-        Log.i("Preview", "x: " + mPreviewView.getLeft() + ", y: " + mPreviewView.getTop());
-        Log.i("Preview", "w: " + width + ", h: " + height);
+        //Log.i("Preview", "x: " + mPreviewView.getLeft() + ", y: " + mPreviewView.getTop());
+        //Log.i("Preview", "w: " + width + ", h: " + height);
 
         diameter = width;
         if (height < width) {
