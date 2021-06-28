@@ -192,8 +192,8 @@ public class Extractor {
 
             if (null != tflite) {
                 //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
-                //tflite.run(inputBuffer, featureBuffer.getBuffer());
-                tflite.run(txtInputs, featureBuffer.getBuffer());
+                tflite.run(inputBuffer, featureBuffer.getBuffer());
+                //tflite.run(txtInputs, featureBuffer.getBuffer());
             }
 
             String result = "[";

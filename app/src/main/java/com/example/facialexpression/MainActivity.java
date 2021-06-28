@@ -35,6 +35,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.tensorflow.lite.support.common.FileUtil;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -49,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     Canvas canvas;
     Paint paint;
     Extractor extractor;
+
+    private float[][][][] txtInputs = new float[1][3][224][224];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +83,33 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         holder.addCallback(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //load text file
+        StringBuffer strBuffer = new StringBuffer();
+        try{
+            InputStream is = getAssets().open("dump_face.csv");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            int c = 0, h = 0;
+            String line="";
+            while((line=reader.readLine())!=null){
+                strBuffer.append(line+"\n");
+                String[] temp = line.split(",");
+                for (int w = 0 ; w < temp.length; w++) {
+                    txtInputs[0][c][h][w] = Float.parseFloat(temp[w]);
+                    //Log.i("test", String.format("%.5f", f));
+                }
+                h++;
+                if (h == 224) {
+                    h = 0;
+                    c++;
+                }
+            }
+            reader.close();
+            is.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
         //test : load image
         try {
@@ -107,12 +140,12 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             k = 0;
             for (int y = 0; y < 224; y++) { //h
                 for (int x = 0; x < 224; x++) { //w
-                    int r = (int)(inputBuffer[0][0][y][x] * 255.0f + 0.5f);
-                    int g = (int)(inputBuffer[0][1][y][x] * 255.0f + 0.5f);
-                    int b = (int)(inputBuffer[0][2][y][x] * 255.0f + 0.5f);
+                    int r = (int)(Math.abs(txtInputs[0][0][y][x] - inputBuffer[0][0][y][x]) * 255.0f + 0.5f);
+                    int g = (int)(Math.abs(txtInputs[0][1][y][x] - inputBuffer[0][1][y][x]) * 255.0f + 0.5f);
+                    int b = (int)(Math.abs(txtInputs[0][2][y][x] - inputBuffer[0][2][y][x]) * 255.0f + 0.5f);
 
                     pixels[k] = 0;
-                    pixels[k++] = ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff));
+                    pixels[k++] = (0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | ((b & 0xff));
                 }
             }
 
