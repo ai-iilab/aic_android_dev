@@ -23,7 +23,10 @@ import org.tensorflow.lite.support.image.ops.Rot90Op;
 import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +38,7 @@ public class Extractor {
     final String ASSOCIATED_AXIS_LABELS = "labels.txt";
     List<String> associatedAxisLabels = null;
     private byte[] sample;
+    private float[][][][] txtInputs = new float[1][3][224][224];
 
     public Extractor(Context context)
     {
@@ -60,6 +64,33 @@ public class Extractor {
             sample = FileUtil.loadByteFromFile(context, "face.jpg");
         } catch (IOException e){
             Log.e("sampleRead", "Error reading sample file", e);
+        }
+
+        //load text file
+        StringBuffer strBuffer = new StringBuffer();
+        try{
+            InputStream is = context.getAssets().open("dump_face.csv");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            int c = 0, h = 0;
+            String line="";
+            while((line=reader.readLine())!=null){
+                strBuffer.append(line+"\n");
+                String[] temp = line.split(",");
+                for (int w = 0 ; w < temp.length; w++) {
+                    txtInputs[0][c][h][w] = Float.parseFloat(temp[w]);
+                    //Log.i("test", String.format("%.5f", f));
+                }
+                h++;
+                if (h == 224) {
+                    h = 0;
+                    c++;
+                }
+            }
+            reader.close();
+            is.close();
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 
@@ -161,7 +192,8 @@ public class Extractor {
 
             if (null != tflite) {
                 //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
-                tflite.run(inputBuffer, featureBuffer.getBuffer());
+                //tflite.run(inputBuffer, featureBuffer.getBuffer());
+                tflite.run(txtInputs, featureBuffer.getBuffer());
             }
 
             String result = "[";

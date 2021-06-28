@@ -35,7 +35,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.tensorflow.lite.support.common.FileUtil;
 
-import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -84,10 +83,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             byte[] sample = FileUtil.loadByteFromFile(this, "face.jpg");
             Bitmap bitmap = BitmapFactory.decodeByteArray(sample, 0, sample.length);
             Bitmap rzBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
-
-            //Matrix matrix = new Matrix();
-            //matrix.postRotate(90);
-            //Bitmap rtBitmap = Bitmap.createBitmap(rzBitmap, 0, 0 , rzBitmap.getWidth(), rzBitmap.getHeight(), matrix, true);
 
             int[] pixels = new int[224 * 224];
             rzBitmap.getPixels(pixels, 0, rzBitmap.getWidth(), 0, 0, 224, 224);
