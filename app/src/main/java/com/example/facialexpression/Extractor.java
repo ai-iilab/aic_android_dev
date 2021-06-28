@@ -3,6 +3,8 @@ package com.example.facialexpression;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.Image;
 import android.util.Log;
 
@@ -32,6 +34,7 @@ public class Extractor {
     Interpreter tflite;
     final String ASSOCIATED_AXIS_LABELS = "labels.txt";
     List<String> associatedAxisLabels = null;
+    private byte[] sample;
 
     public Extractor(Context context)
     {
@@ -52,13 +55,19 @@ public class Extractor {
         } catch (IOException e){
             Log.e("tfliteSupport", "Error reading model", e);
         }
+
+        try{
+            sample = FileUtil.loadByteFromFile(context, "face.jpg");
+        } catch (IOException e){
+            Log.e("sampleRead", "Error reading sample file", e);
+        }
     }
 
-    public String process(ImageProxy image, boolean useBoxImage){
+    public String process(ImageProxy image, int imageType){
         @SuppressLint("UnsafeExperimentalUsageError")
         Image img = image.getImage();
         Bitmap bitmap;
-        if (useBoxImage) {
+        if (imageType == 0) {
             Bitmap bmp = Utils.toBitmap(img);
 
             int width = bmp.getWidth();
@@ -83,6 +92,8 @@ public class Extractor {
             //Log.i("Extractor", "w: " + img.getWidth() + ", h: " + img.getHeight());
 
             bitmap = Bitmap.createBitmap(bmp, left, top, right-left, bottom-top);
+        } else if (imageType == 1) {
+            bitmap = BitmapFactory.decodeByteArray(sample, 0, sample.length);
         } else {
             bitmap = Utils.toBitmap(img);
         }
@@ -91,21 +102,66 @@ public class Extractor {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
+        Log.i("test1", "[" + width + ", " + height + "]");
+
         if (true) {
             //facial expression
             int size = height > width ? width : height;
             ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                    .add(new ResizeWithCropOrPadOp(size, size))
+                    //.add(new ResizeWithCropOrPadOp(size, size))
                     .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                    .add(new Rot90Op(rotation))
+                    .add(new NormalizeOp(0, 255))
+                    //.add(new Rot90Op(rotation))
                     .build();
+
             TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
             tensorImage.load(bitmap);
             tensorImage = imageProcessor.process(tensorImage);
+
+            //[1, 3, 224, 224]
+            //int[] imageShape = tflite.getInputTensor(0).shape();
+            //Log.i("test1", "[" + imageShape[0] + ", " + imageShape[1] + ", " + imageShape[2] + ", " + imageShape[3] + "]");
+            //Log.i("test2", "[" + imageShape[0] + ", " + tensorImage.getColorSpaceType() + ", " + tensorImage.getWidth() + ", " + tensorImage.getHeight() + "]");
+
+            //bitmap [1, 224, 224, 3] -> tensor [1, 3, 224, 224]
+            Bitmap rzBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
+
+            int[] pixels = new int[224 * 224];
+            rzBitmap.getPixels(pixels, 0, rzBitmap.getWidth(), 0, 0, 224, 224);
+
+            float[][][][] inputBuffer = new float[1][3][224][224];
+            int k = 0;
+            for (int y = 0; y < 224; y++) { //h
+                for (int x = 0; x < 224; x++) { //w
+                    int pixel = pixels[k++];
+                    inputBuffer[0][0][y][x] = ((pixel >> 16) & 0xff) / 255.0f; //r
+                    inputBuffer[0][1][y][x] = ((pixel >> 8) & 0xff) / 255.0f;  //g
+                    inputBuffer[0][2][y][x] = ((pixel >> 0) & 0xff) / 255.0f;  //b
+                }
+            }
+
+            /*
+            Log.i("rzbmp", "[" + rzBitmap.getWidth() + ", " + rzBitmap.getHeight() + "]");
+            for (int y = 0; y < 224; y++) { //h
+                Log.i("rzbmp", "[" + "0," + y + ":" + String.format("%.5f, %.5f, %.5f",
+                        inputBuffer[0][0][y][0], inputBuffer[0][0][y][1], inputBuffer[0][0][y][2]) + "]");
+            }
+            */
+
+            //Log.i("test1", "[" + inputBuffer[0][0][127][127] + ", " + inputBuffer[0][0][127][128] + "]");
+            //Log.i("test1", "[" + inputBuffer[0][0][128][127] + ", " + inputBuffer[0][0][128][128] + "]");
+            //Log.i("test1", "[" + inputBuffer[0][1][127][127] + ", " + inputBuffer[0][1][127][128] + "]");
+            //Log.i("test1", "[" + inputBuffer[0][1][128][127] + ", " + inputBuffer[0][1][128][128] + "]");
+            //Log.i("test1", "[" + inputBuffer[0][2][127][127] + ", " + inputBuffer[0][2][127][128] + "]");
+            //Log.i("test1", "[" + inputBuffer[0][2][128][127] + ", " + inputBuffer[0][2][128][128] + "]");
+
+            //[1, 16]
             TensorBuffer featureBuffer =
                     TensorBuffer.createFixedSize(new int[]{1, 16}, DataType.FLOAT32);
+
             if (null != tflite) {
-                tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
+                //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
+                tflite.run(inputBuffer, featureBuffer.getBuffer());
             }
 
             String result = "[";
