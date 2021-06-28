@@ -31,7 +31,7 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-public class Extractor {
+public class FeExtractor {
 
     private Context context;
     Interpreter tflite;
@@ -40,7 +40,7 @@ public class Extractor {
     private byte[] sample;
     private float[][][][] txtInputs = new float[1][3][224][224];
 
-    public Extractor(Context context)
+    public FeExtractor(Context context)
     {
         this.context = context;
 

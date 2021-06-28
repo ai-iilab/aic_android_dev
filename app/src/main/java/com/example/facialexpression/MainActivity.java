@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     SurfaceView surfaceView;
     Canvas canvas;
     Paint paint;
-    Extractor extractor;
+    FeExtractor extractor;
 
     private float[][][][] txtInputs = new float[1][3][224][224];
 
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mPreviewView = findViewById(R.id.viewFinder);
         tvResults = findViewById(R.id.tvResults);
 
-        extractor = new Extractor(this);
+        extractor = new FeExtractor(this);
 
         // CameraX
         if (allPermissionsGranted()){
