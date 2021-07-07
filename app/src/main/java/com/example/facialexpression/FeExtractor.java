@@ -44,6 +44,7 @@ public class FeExtractor {
     {
         this.context = context;
 
+        //
         try {
             associatedAxisLabels = FileUtil.loadLabels(context, ASSOCIATED_AXIS_LABELS);
         } catch (IOException e) {
@@ -100,41 +101,40 @@ public class FeExtractor {
 
         Log.i("test1", "[" + width + ", " + height + "]");
 
-        if (true) {
-            //facial expression
-            int size = height > width ? width : height;
-            ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                    //.add(new ResizeWithCropOrPadOp(size, size))
-                    .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                    .add(new NormalizeOp(0, 255))
-                    //.add(new Rot90Op(rotation))
-                    .build();
+        //facial expression
+        int size = height > width ? width : height;
+        ImageProcessor imageProcessor = new ImageProcessor.Builder()
+                //.add(new ResizeWithCropOrPadOp(size, size))
+                .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
+                .add(new NormalizeOp(0, 255))
+                //.add(new Rot90Op(rotation))
+                .build();
 
-            TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
-            tensorImage.load(bitmap);
-            tensorImage = imageProcessor.process(tensorImage);
+        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+        tensorImage.load(bitmap);
+        tensorImage = imageProcessor.process(tensorImage);
 
-            //[1, 3, 224, 224]
-            //int[] imageShape = tflite.getInputTensor(0).shape();
-            //Log.i("test1", "[" + imageShape[0] + ", " + imageShape[1] + ", " + imageShape[2] + ", " + imageShape[3] + "]");
-            //Log.i("test2", "[" + imageShape[0] + ", " + tensorImage.getColorSpaceType() + ", " + tensorImage.getWidth() + ", " + tensorImage.getHeight() + "]");
+        //[1, 3, 224, 224]
+        //int[] imageShape = tflite.getInputTensor(0).shape();
+        //Log.i("test1", "[" + imageShape[0] + ", " + imageShape[1] + ", " + imageShape[2] + ", " + imageShape[3] + "]");
+        //Log.i("test2", "[" + imageShape[0] + ", " + tensorImage.getColorSpaceType() + ", " + tensorImage.getWidth() + ", " + tensorImage.getHeight() + "]");
 
-            //bitmap [1, 224, 224, 3] -> tensor [1, 3, 224, 224]
-            Bitmap rzBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
+        //bitmap [1, 224, 224, 3] -> tensor [1, 3, 224, 224]
+        Bitmap rzBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
 
-            int[] pixels = new int[224 * 224];
-            rzBitmap.getPixels(pixels, 0, rzBitmap.getWidth(), 0, 0, 224, 224);
+        int[] pixels = new int[224 * 224];
+        rzBitmap.getPixels(pixels, 0, rzBitmap.getWidth(), 0, 0, 224, 224);
 
-            float[][][][] inputBuffer = new float[1][3][224][224];
-            int k = 0;
-            for (int y = 0; y < 224; y++) { //h
-                for (int x = 0; x < 224; x++) { //w
-                    int pixel = pixels[k++];
-                    inputBuffer[0][0][y][x] = ((pixel >> 16) & 0xff) / 255.0f; //r
-                    inputBuffer[0][1][y][x] = ((pixel >> 8) & 0xff) / 255.0f;  //g
-                    inputBuffer[0][2][y][x] = ((pixel >> 0) & 0xff) / 255.0f;  //b
-                }
+        float[][][][] inputBuffer = new float[1][3][224][224];
+        int k = 0;
+        for (int y = 0; y < 224; y++) { //h
+            for (int x = 0; x < 224; x++) { //w
+                int pixel = pixels[k++];
+                inputBuffer[0][0][y][x] = ((pixel >> 16) & 0xff) / 255.0f; //r
+                inputBuffer[0][1][y][x] = ((pixel >> 8) & 0xff) / 255.0f;  //g
+                inputBuffer[0][2][y][x] = ((pixel >> 0) & 0xff) / 255.0f;  //b
             }
+        }
 
             /*
             Log.i("rzbmp", "[" + rzBitmap.getWidth() + ", " + rzBitmap.getHeight() + "]");
@@ -144,67 +144,34 @@ public class FeExtractor {
             }
             */
 
-            //Log.i("test1", "[" + inputBuffer[0][0][127][127] + ", " + inputBuffer[0][0][127][128] + "]");
-            //Log.i("test1", "[" + inputBuffer[0][0][128][127] + ", " + inputBuffer[0][0][128][128] + "]");
-            //Log.i("test1", "[" + inputBuffer[0][1][127][127] + ", " + inputBuffer[0][1][127][128] + "]");
-            //Log.i("test1", "[" + inputBuffer[0][1][128][127] + ", " + inputBuffer[0][1][128][128] + "]");
-            //Log.i("test1", "[" + inputBuffer[0][2][127][127] + ", " + inputBuffer[0][2][127][128] + "]");
-            //Log.i("test1", "[" + inputBuffer[0][2][128][127] + ", " + inputBuffer[0][2][128][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][0][127][127] + ", " + inputBuffer[0][0][127][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][0][128][127] + ", " + inputBuffer[0][0][128][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][1][127][127] + ", " + inputBuffer[0][1][127][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][1][128][127] + ", " + inputBuffer[0][1][128][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][2][127][127] + ", " + inputBuffer[0][2][127][128] + "]");
+        //Log.i("test1", "[" + inputBuffer[0][2][128][127] + ", " + inputBuffer[0][2][128][128] + "]");
 
-            //[1, 16]
-            TensorBuffer featureBuffer =
-                    TensorBuffer.createFixedSize(new int[]{1, 16}, DataType.FLOAT32);
+        //[1, 16]
+        TensorBuffer featureBuffer =
+                TensorBuffer.createFixedSize(new int[]{1, 16}, DataType.FLOAT32);
 
-            if (null != tflite) {
-                //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
-                tflite.run(inputBuffer, featureBuffer.getBuffer());
-                //tflite.run(txtInputs, featureBuffer.getBuffer());
-            }
-
-            String result = "[";
-            for (int i = 0; i < featureBuffer.getFlatSize(); i++) {
-                if (i == featureBuffer.getFlatSize() - 1){
-                    result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + "]";
-                } else if (i % 4 == 3) {
-                    result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + ",\n ";
-                } else {
-                    result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + ", ";
-                }
-            }
-
-            return result;
-        }
-        else {
-            int size = height > width ? width : height;
-            ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                    .add(new ResizeWithCropOrPadOp(size, size))
-                    .add(new ResizeOp(128, 128, ResizeOp.ResizeMethod.BILINEAR))
-                    .add(new Rot90Op(rotation))
-                    .build();
-            TensorImage tensorImage = new TensorImage(DataType.UINT8);
-            tensorImage.load(bitmap);
-            tensorImage = imageProcessor.process(tensorImage);
-            TensorBuffer probabilityBuffer =
-                    TensorBuffer.createFixedSize(new int[]{1, 1001}, DataType.UINT8);
-            if (null != tflite) {
-                tflite.run(tensorImage.getBuffer(), probabilityBuffer.getBuffer());
-            }
-            TensorProcessor probabilityProcessor =
-                    new TensorProcessor.Builder().add(new NormalizeOp(0, 255)).build();
-
-            String result = " ";
-            if (null != associatedAxisLabels) {
-                // Map of labels and their corresponding probability
-                TensorLabel labels = new TensorLabel(associatedAxisLabels,
-                        probabilityProcessor.process(probabilityBuffer));
-
-                // Create a map to access the result based on label
-                Map<String, Float> floatMap = labels.getMapWithFloatValue();
-                result = Utils.writeResults(floatMap);
-            }
-
-            return result;
+        if (null != tflite) {
+            //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
+            tflite.run(inputBuffer, featureBuffer.getBuffer());
+            //tflite.run(txtInputs, featureBuffer.getBuffer());
         }
 
+        String result = "[";
+        for (int i = 0; i < featureBuffer.getFlatSize(); i++) {
+            if (i == featureBuffer.getFlatSize() - 1){
+                result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + "]";
+            } else if (i % 4 == 3) {
+                result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + ",\n ";
+            } else {
+                result += String.format("%+.4f", featureBuffer.getFloatValue(i)) + ", ";
+            }
+        }
+
+        return result;
     }
 }
