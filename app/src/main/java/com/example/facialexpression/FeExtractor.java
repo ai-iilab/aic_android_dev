@@ -51,6 +51,7 @@ public class FeExtractor {
             Log.e("tfliteSupport", "Error reading label file", e);
         }
 
+        // load tflite model for facial expression extraction
         try{
             MappedByteBuffer tfliteModel
                     = FileUtil.loadMappedFile(context, "fecnet_model.tflite");
