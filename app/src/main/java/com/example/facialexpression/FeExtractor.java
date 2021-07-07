@@ -105,11 +105,12 @@ public class FeExtractor {
         TensorBuffer featureBuffer =
                 TensorBuffer.createFixedSize(new int[]{1, 16}, DataType.FLOAT32);
 
+        //inference
         if (null != tflite) {
             tflite.run(inputBuffer, featureBuffer.getBuffer());
         }
 
-        //generate result
+        //result
         String result = "[";
         for (int i = 0; i < featureBuffer.getFlatSize(); i++) {
             if (i == featureBuffer.getFlatSize() - 1){
