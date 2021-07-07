@@ -35,20 +35,11 @@ public class FeExtractor {
 
     private Context context;
     Interpreter tflite;
-    final String ASSOCIATED_AXIS_LABELS = "labels.txt";
-    List<String> associatedAxisLabels = null;
     private byte[] sample;
 
     public FeExtractor(Context context)
     {
         this.context = context;
-
-        //
-        try {
-            associatedAxisLabels = FileUtil.loadLabels(context, ASSOCIATED_AXIS_LABELS);
-        } catch (IOException e) {
-            Log.e("tfliteSupport", "Error reading label file", e);
-        }
 
         // load tflite model for facial expression extraction
         try{
