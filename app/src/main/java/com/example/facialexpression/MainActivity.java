@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     @Override
                     public void analyze(@NonNull ImageProxy image) {
                         String result;
+                        //imageType: 0 - use cropped image
+                        //imageType: 1 - use full captured image
                         result = extractor.process(image, 1);
                         tvResults.setText(result);
                         image.close();

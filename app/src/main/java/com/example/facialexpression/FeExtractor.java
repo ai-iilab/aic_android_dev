@@ -90,18 +90,6 @@ public class FeExtractor {
         Log.i("test1", "[" + width + ", " + height + "]");
 
         //facial expression
-        int size = height > width ? width : height;
-        ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                //.add(new ResizeWithCropOrPadOp(size, size))
-                .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
-                .add(new NormalizeOp(0, 255))
-                //.add(new Rot90Op(rotation))
-                .build();
-
-        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
-        tensorImage.load(bitmap);
-        tensorImage = imageProcessor.process(tensorImage);
-
         //[1, 3, 224, 224]
         //int[] imageShape = tflite.getInputTensor(0).shape();
         //Log.i("test1", "[" + imageShape[0] + ", " + imageShape[1] + ", " + imageShape[2] + ", " + imageShape[3] + "]");
