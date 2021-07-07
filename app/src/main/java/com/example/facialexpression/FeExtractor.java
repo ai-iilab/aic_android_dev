@@ -57,33 +57,6 @@ public class FeExtractor {
         } catch (IOException e){
             Log.e("tfliteSupport", "Error reading model", e);
         }
-
-        //load text file
-        StringBuffer strBuffer = new StringBuffer();
-        try{
-            InputStream is = context.getAssets().open("dump_face.csv");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            int c = 0, h = 0;
-            String line="";
-            while((line=reader.readLine())!=null){
-                strBuffer.append(line+"\n");
-                String[] temp = line.split(",");
-                for (int w = 0 ; w < temp.length; w++) {
-                    txtInputs[0][c][h][w] = Float.parseFloat(temp[w]);
-                    //Log.i("test", String.format("%.5f", f));
-                }
-                h++;
-                if (h == 224) {
-                    h = 0;
-                    c++;
-                }
-            }
-            reader.close();
-            is.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
     }
 
     public String process(ImageProxy image, int imageType){
