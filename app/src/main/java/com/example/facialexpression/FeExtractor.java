@@ -83,18 +83,7 @@ public class FeExtractor {
             bitmap = Utils.toBitmap(img);
         }
 
-        int rotation = Utils.getImageRotation(image);
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        Log.i("test1", "[" + width + ", " + height + "]");
-
         //facial expression
-        //[1, 3, 224, 224]
-        //int[] imageShape = tflite.getInputTensor(0).shape();
-        //Log.i("test1", "[" + imageShape[0] + ", " + imageShape[1] + ", " + imageShape[2] + ", " + imageShape[3] + "]");
-        //Log.i("test2", "[" + imageShape[0] + ", " + tensorImage.getColorSpaceType() + ", " + tensorImage.getWidth() + ", " + tensorImage.getHeight() + "]");
-
         //bitmap [1, 224, 224, 3] -> tensor [1, 3, 224, 224]
         Bitmap rzBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
 
@@ -112,30 +101,15 @@ public class FeExtractor {
             }
         }
 
-        /*
-        Log.i("rzbmp", "[" + rzBitmap.getWidth() + ", " + rzBitmap.getHeight() + "]");
-        for (int y = 0; y < 224; y++) { //h
-            Log.i("rzbmp", "[" + "0," + y + ":" + String.format("%.5f, %.5f, %.5f",
-                    inputBuffer[0][0][y][0], inputBuffer[0][0][y][1], inputBuffer[0][0][y][2]) + "]");
-        }
-        */
-
-        //Log.i("test1", "[" + inputBuffer[0][0][127][127] + ", " + inputBuffer[0][0][127][128] + "]");
-        //Log.i("test1", "[" + inputBuffer[0][0][128][127] + ", " + inputBuffer[0][0][128][128] + "]");
-        //Log.i("test1", "[" + inputBuffer[0][1][127][127] + ", " + inputBuffer[0][1][127][128] + "]");
-        //Log.i("test1", "[" + inputBuffer[0][1][128][127] + ", " + inputBuffer[0][1][128][128] + "]");
-        //Log.i("test1", "[" + inputBuffer[0][2][127][127] + ", " + inputBuffer[0][2][127][128] + "]");
-        //Log.i("test1", "[" + inputBuffer[0][2][128][127] + ", " + inputBuffer[0][2][128][128] + "]");
-
         //[1, 16]
         TensorBuffer featureBuffer =
                 TensorBuffer.createFixedSize(new int[]{1, 16}, DataType.FLOAT32);
 
         if (null != tflite) {
-            //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
             tflite.run(inputBuffer, featureBuffer.getBuffer());
         }
 
+        //generate result
         String result = "[";
         for (int i = 0; i < featureBuffer.getFlatSize(); i++) {
             if (i == featureBuffer.getFlatSize() - 1){
