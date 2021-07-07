@@ -52,9 +52,7 @@ public class FeExtractor {
 
         try{
             MappedByteBuffer tfliteModel
-                    = FileUtil.loadMappedFile(context,
-                    /*"mobilenet_v1_0.25_128_quantized_1_metadata_1.tflite"*/
-            "fecnet_model.tflite");
+                    = FileUtil.loadMappedFile(context, "fecnet_model.tflite");
             tflite = new Interpreter(tfliteModel);
         } catch (IOException e){
             Log.e("tfliteSupport", "Error reading model", e);
