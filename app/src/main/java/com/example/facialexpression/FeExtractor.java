@@ -35,7 +35,6 @@ public class FeExtractor {
 
     private Context context;
     Interpreter tflite;
-    private byte[] sample;
 
     public FeExtractor(Context context)
     {
@@ -55,7 +54,7 @@ public class FeExtractor {
         @SuppressLint("UnsafeExperimentalUsageError")
         Image img = image.getImage();
         Bitmap bitmap;
-        if (imageType == 0) {
+        if (imageType == 0) { //use cropped image
             Bitmap bmp = Utils.toBitmap(img);
 
             int width = bmp.getWidth();
@@ -80,9 +79,7 @@ public class FeExtractor {
             //Log.i("Extractor", "w: " + img.getWidth() + ", h: " + img.getHeight());
 
             bitmap = Bitmap.createBitmap(bmp, left, top, right-left, bottom-top);
-        } else if (imageType == 1) {
-            bitmap = BitmapFactory.decodeByteArray(sample, 0, sample.length);
-        } else {
+        } else { //use full image
             bitmap = Utils.toBitmap(img);
         }
 
@@ -127,13 +124,13 @@ public class FeExtractor {
             }
         }
 
-            /*
-            Log.i("rzbmp", "[" + rzBitmap.getWidth() + ", " + rzBitmap.getHeight() + "]");
-            for (int y = 0; y < 224; y++) { //h
-                Log.i("rzbmp", "[" + "0," + y + ":" + String.format("%.5f, %.5f, %.5f",
-                        inputBuffer[0][0][y][0], inputBuffer[0][0][y][1], inputBuffer[0][0][y][2]) + "]");
-            }
-            */
+        /*
+        Log.i("rzbmp", "[" + rzBitmap.getWidth() + ", " + rzBitmap.getHeight() + "]");
+        for (int y = 0; y < 224; y++) { //h
+            Log.i("rzbmp", "[" + "0," + y + ":" + String.format("%.5f, %.5f, %.5f",
+                    inputBuffer[0][0][y][0], inputBuffer[0][0][y][1], inputBuffer[0][0][y][2]) + "]");
+        }
+        */
 
         //Log.i("test1", "[" + inputBuffer[0][0][127][127] + ", " + inputBuffer[0][0][127][128] + "]");
         //Log.i("test1", "[" + inputBuffer[0][0][128][127] + ", " + inputBuffer[0][0][128][128] + "]");

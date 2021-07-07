@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 new ImageAnalysis.Analyzer() {
                     @Override
                     public void analyze(@NonNull ImageProxy image) {
-                        String result = "hello";
+                        String result;
                         result = extractor.process(image, 1);
                         tvResults.setText(result);
                         image.close();
