@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     Paint paint;
     FeExtractor extractor;
 
-    private float[][][][] txtInputs = new float[1][3][224][224];
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

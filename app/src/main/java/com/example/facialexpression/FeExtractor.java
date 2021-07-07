@@ -38,7 +38,6 @@ public class FeExtractor {
     final String ASSOCIATED_AXIS_LABELS = "labels.txt";
     List<String> associatedAxisLabels = null;
     private byte[] sample;
-    private float[][][][] txtInputs = new float[1][3][224][224];
 
     public FeExtractor(Context context)
     {
@@ -159,7 +158,6 @@ public class FeExtractor {
         if (null != tflite) {
             //tflite.run(tensorImage.getBuffer(), featureBuffer.getBuffer());
             tflite.run(inputBuffer, featureBuffer.getBuffer());
-            //tflite.run(txtInputs, featureBuffer.getBuffer());
         }
 
         String result = "[";
