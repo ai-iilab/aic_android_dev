@@ -58,12 +58,6 @@ public class FeExtractor {
             Log.e("tfliteSupport", "Error reading model", e);
         }
 
-        try{
-            sample = FileUtil.loadByteFromFile(context, "face.jpg");
-        } catch (IOException e){
-            Log.e("sampleRead", "Error reading sample file", e);
-        }
-
         //load text file
         StringBuffer strBuffer = new StringBuffer();
         try{
