@@ -14,7 +14,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class Utils {
-
     public static String writeResults(Map<String, Float> mapResults){
         Map.Entry<String, Float> entryMax = null;
         Map.Entry<String, Float> entryMax1 = null;
@@ -62,4 +61,12 @@ public class Utils {
         byte[] imageBytes = out.toByteArray();
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
+    // Empty BitMap image.
+    // public static createEmptyBitmap(imageWidth: Int, imageHeigth: Int, color: Int = 0, imageConfig: Bitmap.Config = Bitmap.Config.RGB_565){
+    //   val ret = Bitmap.createBitmap(imageWidth, imageHeigth, imageConfig)
+    //   if (color != 0) {
+    //     ret.eraseColor(color)
+    //   }
+    //   return ret
+    // }
 }
