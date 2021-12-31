@@ -55,6 +55,8 @@ public class FeExtractor {
         Image img = image.getImage();
         Bitmap bitmap;
         if (imageType == 0) { //use cropped image
+            //crop ratio 2,4
+            int crop_ratio = 2
             Bitmap bmp = Utils.toBitmap(img);
 
             int width = bmp.getWidth();
@@ -69,10 +71,15 @@ public class FeExtractor {
             int offset = (int) (0.05 * diameter);
             diameter -= offset;
 
-            left = width / 2 - diameter / 2;
-            top = height / 2 - diameter / 2;
-            right = width / 2 + diameter / 2;
-            bottom = height / 2 + diameter / 2;
+            // org
+            // left = width / 2 - diameter / 2;
+            // top = height / 2 - diameter / 2;
+            // right = width / 2 + diameter / 2;
+            // bottom = height / 2 + diameter / 2;
+            left = width / crop_ratio - diameter / crop_ratio;
+            top = height / crop_ratio - diameter / crop_ratio2;
+            right = width / crop_ratio + diameter / crop_ratio;
+            bottom = height / crop_ratio + diameter / crop_ratio;
 
             //Log.i("Extractor", "x: " + left + ", y: " + top);
             //Log.i("Extractor", "w: " + (right-left) + ", h: " + (bottom-top));
